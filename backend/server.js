@@ -1,9 +1,8 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import { logger, morgan } from './config/index.js';
+import { logger, morgan, connectDB } from './config/index.js';
 import { validateRequest, errorHandler, notFoundHandler } from './utils/index.js';
-import connectDB  from './db/connectDB.js';
 
 dotenv.config();
 const PORT = process.env.PORT || 5000;
