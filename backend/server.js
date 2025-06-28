@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import { logger, morgan, connectDB } from './config/index.js';
 import { validateRequest, errorHandler, notFoundHandler } from './utils/index.js';
+import authRouter from './routes/auth.route.js';
 
 dotenv.config();
 const PORT = process.env.PORT || 5000;
@@ -28,6 +29,8 @@ app.use((req, res, next) => {
 app.get('/', (req, res) => {
     res.send('Hello World!');
 });
+
+app.use('/api/v1/auth', authRouter);
 
 app.use(validateRequest);
 app.use(errorHandler);

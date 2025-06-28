@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import { logger } from "../../config/index.js";
-// import AuthService from "../../services/auth.service.js";
+import AuthService from "../../services/auth.service.js";
 
 export const verifyToken = async (req, res, next) => {
     const authService = new AuthService();
@@ -15,7 +15,7 @@ export const verifyToken = async (req, res, next) => {
         }
         logger.info(`decoded: ${JSON.stringify(decoded)}`);
 
-        // const user = await authService.getUserById(decoded.userId);
+        const user = await authService.getUserById(decoded.userId);
         if (!user) {
             return res.status(401).send("Unauthorized");
         }
