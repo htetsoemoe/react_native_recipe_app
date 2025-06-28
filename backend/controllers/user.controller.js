@@ -68,3 +68,55 @@ export const signup = async (req, res) => {
     }
 }
 
+export const signin = async (req, res) => {
+    try {
+        const authService = new AuthService();
+        const { email, password } = req.body;
+
+        const foundUser = await authService.getUserByEmail(email);
+        if (!foundUser) {
+            return res.status(400).json({
+                message: "User not found",
+            })
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, foundUser.password);
+        if (!isPasswordValid) {
+            return res.status(400).json({
+                message: "Invalid password",
+            })
+        }
+
+        // generate token and set cookie
+        generateTokenAndSetCookie(foundUser._id, res);
+        const { password: pass, ...rest } = foundUser._doc;
+
+        res.status(200).json({
+            user: rest,
+            success: true,
+            message: "User logged in successfully",
+        })
+    } catch (error) {
+        console.log(`Error in signin: ${error.message}`);
+        return res.status(500).json({
+            message: "Error in signin controller",
+            error: error.message,
+        })
+    }
+}
+
+export const logout = async (req, res) => {
+    try {
+        res.cookie("jwt", "", { maxAge: 0 });
+        res.status(200).json({
+            message: "User logged out successfully",
+        });
+    } catch (error) {
+        console.log(`Error in logout: ${error.message}`);
+        return res.status(500).json({
+            message: "Error in logout controller",
+            error: error.message,
+        })
+    }
+}
+

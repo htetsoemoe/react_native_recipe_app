@@ -29,3 +29,18 @@ export const signupValidator = validate({
         }),
     }),
 })
+
+export const signinValidator = validate({
+    body: Joi.object({
+        email: Joi.string().email().required().messages({
+            "any.required": "email is required",
+            "string.email": "email must be a valid email address",
+        }),
+        password: Joi.string().min(6).max(100).required().messages({
+            "any.required": "Password is required",
+            "string.password": "Password must be a string",
+            "string.min": "Password must be at least 6 characters",
+            "string.max": "Password must be less than 100 characters",
+        }),
+    }),
+})
