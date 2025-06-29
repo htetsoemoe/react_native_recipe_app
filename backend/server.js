@@ -1,5 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import { logger, morgan, connectDB } from './config/index.js';
 import { validateRequest, errorHandler, notFoundHandler } from './utils/index.js';
@@ -10,14 +11,17 @@ const PORT = process.env.PORT || 5000;
 
 const app = express();
 app.use(express.json());
+app.use(cookieParser()); // if you are using http only cookie then you need to use this middleware
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan({ logger }));
-app.use(cors({ // <-- This is crucial for sending cookies from the frontend to the backend
-    origin: ['http://localhost:5173'], // your frontend origin
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true, // allow cookies to be sent with the request
-}))
+
+// This is for React Native to send cookies from the frontend to the backend
+// app.use(cors({ // <-- This is crucial for sending cookies from the frontend to the backend
+//     origin: ['http://localhost:5173'], // your frontend origin
+//     methods: ['GET', 'POST', 'PUT', 'DELETE'],
+//     credentials: true, // allow cookies to be sent with the request
+// }))
 
 app.use((req, res, next) => {
     if (req.path.startsWith('/.well-known')) {
