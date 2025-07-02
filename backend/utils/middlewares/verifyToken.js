@@ -1,12 +1,10 @@
 import jwt from "jsonwebtoken";
 import { logger } from "../../config/index.js";
-import AuthService from "../../services/auth.service.js";
 
 export const verifyToken = async (req, res, next) => {
-    const authService = new AuthService();
-    const token = req.cookies.jwt;
+    const token = req.headers["x-access-token"];
     if (!token) {
-        return res.status(401).send("Unauthorized");
+        return res.status(401).send("Unauthorized: no token provided");
     }
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -15,11 +13,11 @@ export const verifyToken = async (req, res, next) => {
         }
         logger.info(`decoded: ${JSON.stringify(decoded)}`);
 
-        const user = await authService.getUserById(decoded.userId);
-        if (!user) {
-            return res.status(401).send("Unauthorized");
-        }
-        req.user = user;
+        req.userId = decoded._id;
+        req.name = decoded.name;
+        req.username = decoded.username;
+        req.email = decoded.email;
+        req.isAccountVerified = decoded.isAccountVerified;
         next();
     } catch (error) {
         logger.error(`Error in verifyToken: ${error.message}`);

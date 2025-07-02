@@ -1,7 +1,9 @@
+import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
 import AuthService from "../services/auth.service.js";
-import { generateTokenAndSetCookie } from "../utils/index.js";
-import { transporter } from "../config/index.js";
+import { generateOtp, sendOtpToEmail, generateToken } from "../utils/index.js";
+
+dotenv.config();
 
 export const signup = async (req, res) => {
     const authService = new AuthService();
@@ -51,9 +53,6 @@ export const signup = async (req, res) => {
         const newUser = await authService.createUser(newUserData);
 
         if (newUser) {
-            // generate token and set cookie
-            generateTokenAndSetCookie(newUser._id, res);
-
             if (newUser?.isAccountVerified) {
                 return res.status(400).json({
                     success: false,
@@ -62,7 +61,7 @@ export const signup = async (req, res) => {
             }
 
             // generate verification token = 6 digit random number
-            const otp = String(Math.floor(100000 + Math.random() * 900000));
+            const otp = generateOtp();
 
             // set OTP in user's document
             newUser.verifyOtp = otp;
@@ -70,13 +69,7 @@ export const signup = async (req, res) => {
             await newUser.save();
 
             // Send verification OTP to user's email
-            const mailOptions = {
-                from: process.env.SENDER_EMAIL,
-                to: newUser?.email,
-                subject: "Account Verification OTP",
-                text: `Your OTP is ${otp}. This OTP is valid for 24 hours. Verify your account using this OTP.`,
-            }
-            await transporter.sendMail(mailOptions);
+            sendOtpToEmail(newUser?.email, otp);
 
             const { password: pass, ...rest } = newUser._doc;
 
@@ -98,17 +91,16 @@ export const signup = async (req, res) => {
 
 export const verifyEmailOtp = async (req, res) => {
     try {
-        const { otp } = req.body;
-        const { _id: userId } = req.user;
+        const { email, otp } = req.body;
         const authService = new AuthService();
 
-        if (!userId || !otp) {
+        if (!email || !otp) {
             return res.status(400).json({
-                message: "User id and otp are required",
+                message: "User email and otp are required",
             })
         }
 
-        const user = await authService.getUserById(userId);
+        const user = await authService.getUserByEmail(email);
         if (!user) {
             return res.status(400).json({
                 message: "User not found",
@@ -134,10 +126,23 @@ export const verifyEmailOtp = async (req, res) => {
         user.verifyOtp = "";
         user.verifyOtpExpireAt = 0;
         const savedUser = await user.save();
+
+        // generate token
+        const payload = {
+            _id: savedUser._id,
+            name: savedUser.name,
+            username: savedUser.username,
+            email: savedUser.email,
+            isAccountVerified: savedUser.isAccountVerified,
+        }
+        const token = generateToken(payload);
         const { password: pass, ...rest } = savedUser._doc;
 
         res.status(200).json({
-            user: rest,
+            data: {
+                token,
+                user: rest,
+            },
             success: true,
             message: "Account verified successfully",
         })
@@ -162,6 +167,12 @@ export const signin = async (req, res) => {
             })
         }
 
+        if (!foundUser.isAccountVerified) {
+            return res.status(400).json({
+                message: "User account is not verified",
+            }) 
+        }
+
         const isPasswordValid = await bcrypt.compare(password, foundUser.password);
         if (!isPasswordValid) {
             return res.status(400).json({
@@ -169,12 +180,22 @@ export const signin = async (req, res) => {
             })
         }
 
-        // generate token and set cookie
-        generateTokenAndSetCookie(foundUser._id, res);
+        // generate token
+        const payload = {
+            _id: foundUser._id,
+            name: foundUser.name,
+            username: foundUser.username,
+            email: foundUser.email,
+            isAccountVerified: foundUser.isAccountVerified,
+        }
+        const token = generateToken(payload);
         const { password: pass, ...rest } = foundUser._doc;
 
         res.status(200).json({
-            user: rest,
+            data: {
+                token,
+                user: rest,
+            },
             success: true,
             message: "User logged in successfully",
         })
@@ -182,21 +203,6 @@ export const signin = async (req, res) => {
         console.log(`Error in signin: ${error.message}`);
         return res.status(500).json({
             message: "Error in signin controller",
-            error: error.message,
-        })
-    }
-}
-
-export const logout = async (req, res) => {
-    try {
-        res.cookie("jwt", "", { maxAge: 0 });
-        res.status(200).json({
-            message: "User logged out successfully",
-        });
-    } catch (error) {
-        console.log(`Error in logout: ${error.message}`);
-        return res.status(500).json({
-            message: "Error in logout controller",
             error: error.message,
         })
     }
