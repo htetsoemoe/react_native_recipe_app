@@ -5,6 +5,7 @@ import cors from 'cors';
 import { logger, morgan, connectDB } from './config/index.js';
 import { validateRequest, errorHandler, notFoundHandler } from './utils/index.js';
 import authRouter from './routes/auth.route.js';
+import favoriteRouter from './routes/favorites.route.js';
 
 dotenv.config();
 const PORT = process.env.PORT || 5000;
@@ -35,6 +36,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/favorites', favoriteRouter);
 
 app.use(validateRequest);
 app.use(errorHandler);
