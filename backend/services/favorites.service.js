@@ -14,4 +14,12 @@ export default class FavoritesService {
         // console.log(`In services: ${JSON.stringify(favoriteData)}`);
         return await this.favoritesModel.create(favoriteData);
     }
+
+    async getAllFavoritesByUserId(userId) {
+        return await this.favoritesModel.find({ userId });
+    }
+
+    async deleteRecipeByRecipeIdUserId(userId, recipeId) {
+        return await this.favoritesModel.findOneAndDelete({ userId, recipeId });
+    }
 }

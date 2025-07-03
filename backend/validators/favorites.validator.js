@@ -24,3 +24,27 @@ export const createFavoriteValidator = validate({
         })
     })
 })
+
+export const getAllFavoritesByUserIdValidator = validate({
+    params: Joi.object({
+        userId: Joi.string().regex(/^[0-9a-fA-F]{24}$/)
+            .required().messages({
+                "any.required": "user id is required",
+                "string.pattern.base": "user id must be a valid MongoDB ID",
+            }),
+    })
+})
+
+export const deleteRecipeByRecipeIdUserIdValidator = validate({
+    params: Joi.object({
+        userId: Joi.string().regex(/^[0-9a-fA-F]{24}$/)
+            .required().messages({
+                "any.required": "user id is required",
+                "string.pattern.base": "user id must be a valid MongoDB ID",
+            }),
+        recipeId: Joi.number().required().messages({
+            "any.required": "recipe id is required",
+            "number.recipeId": "recipe id must be a number",
+        }),
+    })
+})
