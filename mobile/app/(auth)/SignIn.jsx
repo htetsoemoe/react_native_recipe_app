@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   View,
   Text,
@@ -16,6 +16,7 @@ import { COLORS } from "../../constants/colors";
 import { useDispatch, useSelector } from 'react-redux';
 import { signIn } from "../../redux/auth/authThunks";
 import { selectLoading, selectError } from "../../redux/auth/authSelectors";
+import { setError } from '../../redux/auth/authSlice';
 
 
 const SignIn = () => {
@@ -26,9 +27,16 @@ const SignIn = () => {
   const loading = useSelector(selectLoading);
   const error = useSelector(selectError);
   const router = useRouter();
+  // const { username } = useSelector(state => state.auth.user);
 
-  const handleSignIn = () => {
-    router.push("/(tabs)/");
+  const handleSignIn = async () => {
+    try {
+      await dispatch(signIn({ email, password })).unwrap();
+      router.push('/(tabs)/');
+    } catch (error) {
+      console.log(`Sign-in failed:`, error?.message || error);
+      setError(null);
+    }
   }
 
   return (
@@ -108,6 +116,16 @@ const SignIn = () => {
                 Don&apos;t have an account? <Text style={authStyles.link}>Sign up</Text>
               </Text>
             </TouchableOpacity>
+
+            {/* Error Message */}
+            {error && (
+              <Text style={authStyles.errorText}>
+                {error === "Invalid password" || error === "User not found"
+                  ? "Email or password is incorrect"
+                  : error
+                }
+              </Text>
+            )}
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

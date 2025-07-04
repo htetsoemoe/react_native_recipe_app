@@ -1,55 +1,105 @@
+import { createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { authSlice } from './authSlice';
 import { apiRoutes } from '../../common/apiRoutes';
 import { STORAGE_KEYS } from '../../common/commons';
+import { setToken, setUser, clearAuth } from './authSlice';
 
-const { setUser, setToken, setLoading, setError, clearAuth } = authSlice.actions;
+/**
+ * Sign Up Thunk
+ */
+export const signUp = createAsyncThunk(
+    'auth/signUp',
+    async (userData, { rejectWithValue, dispatch }) => {
+        try {
+            const response = await axios.post(`${apiRoutes.baseUrl}${apiRoutes.signup}`, userData);
+            const { name, email } = response.data.user;
 
-// Signup Thunk
-export const signUp = (userData) => async (dispatch) => {
-    dispatch(setLoading(true));
-    try {
-        const response = await axios.post(`${apiRoutes.baseUrl}${apiRoutes.signup}`, userData);
-        const { name, email } = response.data.user;
+            await AsyncStorage.setItem(STORAGE_KEYS.EMAIL, email); // for OTP verification
 
-        dispatch(setLoading(false));
-        await AsyncStorage.setItem(STORAGE_KEYS.EMAIL, email); // store email temporarily in AsyncStorage for OTP verification
-        dispatch(setUser({ name, email }));
-
-        return response.data;
-    } catch (error) {
-        dispatch(setError(error.response?.data?.message || 'Sign up failed'));
-        dispatch(setLoading(false));
-        throw error;
+            dispatch(setUser({ name, email }));
+            return { name, email };
+        } catch (error) {
+            const message =
+                error.response?.data?.message ||
+                error.message ||
+                'Sign up failed';
+            return rejectWithValue(message);
+        }
     }
-}
+);
 
-// Signin Thunk
-export const signIn = (credentials) => async (dispatch) => {
-    try {
-        dispatch(setLoading(true));
-        const response = await axios.post(`${apiRoutes.baseUrl}${apiRoutes.signin}`, credentials);
+/**
+ *  Verify OTP Thunk
+ */
+export const verifyOTP = createAsyncThunk(
+    'auth/verifyOTP',
+    async (otp, { rejectWithValue, dispatch }) => {
+        try {
+            const email = await AsyncStorage.getItem(STORAGE_KEYS.EMAIL);
+            if (!email) {
+                return rejectWithValue('Email not found in storage');
+            }
 
-        const { token, user } = response.data;
-        await AsyncStorage.setItem(STORAGE_KEYS.TOKEN, token);
-        dispatch(setToken(token));
-        dispatch(setUser(user));
-        dispatch(setLoading(false));
-        return response.data;
-    } catch (error) {
-        dispatch(setError(error.response?.data?.message || 'Sign in failed'));
-        dispatch(setLoading(false));
-        throw error;
+            const response = await axios.post(`${apiRoutes.baseUrl}/auth/verify-otp`, { email, otp });
+            const { token, user } = response.data.data;
+            await AsyncStorage.multiSet([
+                [STORAGE_KEYS.TOKEN, token],
+                [STORAGE_KEYS.EMAIL, ""], // Clear email from storage
+            ]);
+            dispatch(setToken(token));
+            dispatch(setUser(user));
+        } catch (error) {
+            const message =
+                error.response?.data?.message ||
+                error.message ||
+                'OTP verification failed';
+            return rejectWithValue(message);
+        }
     }
-}
+)
 
-// Logout Thunk
-export const logout = () => async (dispatch) => {
-    try {
-        await AsyncStorage.removeItem(STORAGE_KEYS.TOKEN);
-        dispatch(clearAuth());
-    } catch (error) {
-        dispatch(setError(error.response?.data?.message || 'Logout failed'));
+
+/**
+ * Sign In Thunk (already refactored previously)
+ */
+export const signIn = createAsyncThunk(
+    'auth/signIn',
+    async (credentials, { rejectWithValue, dispatch }) => {
+        try {
+            const response = await axios.post(`${apiRoutes.baseUrl}${apiRoutes.signin}`, credentials);
+            const { token, user } = response.data.data;
+
+            await AsyncStorage.setItem(STORAGE_KEYS.TOKEN, token);
+            dispatch(setToken(token));
+            dispatch(setUser(user));
+
+            return user;
+        } catch (error) {
+            const message =
+                error.response?.data?.message ||
+                error.message ||
+                'Sign in failed';
+            return rejectWithValue(message);
+        }
     }
-}
+);
+
+/**
+ * Logout Thunk
+ */
+export const logout = createAsyncThunk(
+    'auth/logout',
+    async (_, { rejectWithValue, dispatch }) => {
+        try {
+            await AsyncStorage.removeItem(STORAGE_KEYS.TOKEN);
+            dispatch(clearAuth());
+        } catch (error) {
+            const message =
+                error.response?.data?.message ||
+                error.message ||
+                'Logout failed';
+            return rejectWithValue(message);
+        }
+    }
+);

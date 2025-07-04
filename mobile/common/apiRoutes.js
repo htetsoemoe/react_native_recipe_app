@@ -1,5 +1,5 @@
 export const apiRoutes = {
-    baseUrl: 'http://localhost:3500/api/v1',
-    signup: '/signup',
-    signin: '/signin',
+    baseUrl: 'http://192.168.100.8:3500/api/v1',
+    signup: '/auth/signup',
+    signin: '/auth/signin',
 }

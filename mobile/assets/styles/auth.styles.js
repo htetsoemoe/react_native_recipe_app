@@ -102,4 +102,15 @@ export const authStyles = StyleSheet.create({
         color: COLORS.primary,
         fontWeight: "600",
     },
+    errorText: {
+        display: "flex",
+        fontSize: 16,
+        marginTop: 10,
+        paddingTop: 10,
+        paddingBottom: 10,
+        paddingLeft: 60,
+        backgroundColor: "red",
+        borderRadius: 10,
+        color: "white",
+    },
 });

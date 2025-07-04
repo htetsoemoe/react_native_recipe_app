@@ -4,7 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { COLORS } from "../../constants/colors";
 
 const _layout = () => {
-    useAuthRedirect() ? <Redirect href="/" /> : null;
+
     return (
         <Tabs
             screenOptions={{

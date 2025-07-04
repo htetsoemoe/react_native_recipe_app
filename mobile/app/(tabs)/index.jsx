@@ -6,7 +6,8 @@ import {
 } from 'react-native'
 import { useRouter } from 'expo-router'
 import { authStyles } from '../../assets/styles/auth.styles'
-
+import {selectToken, selectUser} from '../../redux/auth/authSelectors';
+import { useSelector } from 'react-redux';
 
 const index = () => {
     const router = useRouter()
