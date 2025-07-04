@@ -1,0 +1,17 @@
+export const STORAGE_KEYS = {
+    TOKEN: 'TOKEN',
+    REFRESH_TOKEN: 'REFRESH_TOKEN',
+    USER: 'USER',
+    EMAIL: 'EMAIL',
+    LOGIN_CREDENTIALS: 'LOGIN_CREDENTIAL',
+    REMEMBER_ME: 'REMEMBER_ME',
+    CREDENTIAL: 'CREDENTIAL',
+};
+
+export const API_METHODS = {
+    GET: 'GET',
+    POST: 'POST',
+    PUT: 'PUT',
+    PATCH: 'PATCH',
+    DELETE: 'DELETE'
+}
