@@ -17,7 +17,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { signIn } from "../../redux/auth/authThunks";
 import { selectLoading, selectError } from "../../redux/auth/authSelectors";
 import { setError } from '../../redux/auth/authSlice';
-
+import Toast from 'react-native-toast-message';
 
 const SignIn = () => {
   const [email, setEmail] = useState('');
@@ -36,6 +36,15 @@ const SignIn = () => {
     } catch (error) {
       console.log(`Sign-in failed:`, error?.message || error);
       setError(null);
+      Toast.show({
+        type: "error",
+        text1: "Sign-in failed",
+        text2: error?.message === "Invalid password" || error === "User not found"
+          ? "Email or password is incorrect"
+          : error?.message || error,
+        visibilityTime: 10000,
+        position: "bottom",
+      });
     }
   }
 
@@ -118,14 +127,14 @@ const SignIn = () => {
             </TouchableOpacity>
 
             {/* Error Message */}
-            {error && (
+            {/* {error && (
               <Text style={authStyles.errorText}>
                 {error === "Invalid password" || error === "User not found"
                   ? "Email or password is incorrect"
                   : error
                 }
               </Text>
-            )}
+            )} */}
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
