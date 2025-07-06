@@ -93,7 +93,7 @@ export const verifyEmailOtp = async (req, res) => {
     try {
         const { email, otp } = req.body;
         const authService = new AuthService();
-
+        console.log(`email: ${email}, otp: ${otp}`);
         if (!email || !otp) {
             return res.status(400).json({
                 message: "User email and otp are required",

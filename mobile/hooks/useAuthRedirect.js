@@ -8,7 +8,7 @@ export const useAuthRedirect = () => {
     const router = useRouter();
 
     useEffect(() => {
-        if (isAuthenticated) {
+        if (!isAuthenticated) {
             router.replace("/(auth)/SignIn");
         }
     }, [isAuthenticated]);

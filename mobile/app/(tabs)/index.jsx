@@ -6,24 +6,31 @@ import {
 } from 'react-native'
 import { useRouter } from 'expo-router'
 import { authStyles } from '../../assets/styles/auth.styles'
-import {selectToken, selectUser} from '../../redux/auth/authSelectors';
-import { useSelector } from 'react-redux';
+import { selectToken, selectUser } from '../../redux/auth/authSelectors';
+import { useSelector, useDispatch } from 'react-redux';
+import { useAuthRedirect } from '../../hooks/useAuthRedirect';
+import { logout } from '../../redux/auth/authThunks';
 
 const index = () => {
     const router = useRouter()
+    const dispatch = useDispatch()
+    const handleLogout = () => {
+        dispatch(logout())
+        // router.push("/(auth)/SignIn")
+    }
+
+    useAuthRedirect()
 
     return (
-        <View>
+        <View style={{ marginTop: 100 }}>
             <Text>This is recipe lists.</Text>
 
-            {/* Sign In Link */}
-            <TouchableOpacity
-                
-                style={{ marginTop: 100 }}
-                onPress={() => router.push("/(auth)/SignIn")}
+            {/* Logout Link */}
+            <TouchableOpacity  
+                onPress={handleLogout}
             >
                 <Text style={authStyles.linkText}>
-                    Already have an account? <Text style={authStyles.link}>Sign In</Text>
+                    <Text style={authStyles.link}>Logout</Text>
                 </Text>
             </TouchableOpacity>
         </View>

@@ -40,8 +40,10 @@ export const verifyOTP = createAsyncThunk(
             if (!email) {
                 return rejectWithValue('Email not found in storage');
             }
+            // console.log(`email: ${email}, typeof email: ${typeof email}`);
+            // console.log(`otp: ${otp}, typeof otp: ${typeof otp}`);
 
-            const response = await axios.post(`${apiRoutes.baseUrl}/auth/verify-otp`, { email, otp });
+            const response = await axios.post(`${apiRoutes.baseUrl}${apiRoutes.verifyOtp}`, { email, otp });
             const { token, user } = response.data.data;
             await AsyncStorage.multiSet([
                 [STORAGE_KEYS.TOKEN, token],
@@ -49,6 +51,26 @@ export const verifyOTP = createAsyncThunk(
             ]);
             dispatch(setToken(token));
             dispatch(setUser(user));
+
+            return { token, user };
+            /*
+                Caught error: Cannot read property 'user' of undefined
+                This happens after a successful dispatch(signUp()).unwrap(), 
+                so the problem is how you're handling unwrap() — it's expecting a return value, 
+                but your verifyOTP thunk does not return anything.
+
+                await dispatch(verifyOTP(otp)).unwrap();
+                But your verifyOTP thunk does not return anything, so unwrap() tries to read .user from undefined.
+
+                Solution: Return user data in the thunk
+                Update your thunk to return the needed values, so that unwrap() gets a defined result.
+
+                Fix this line in verifyOTP:
+
+                dispatch(setToken(token));
+                dispatch(setUser(user));
+                return { token, user }; // ✅ return something meaningful
+            */
         } catch (error) {
             const message =
                 error.response?.data?.message ||

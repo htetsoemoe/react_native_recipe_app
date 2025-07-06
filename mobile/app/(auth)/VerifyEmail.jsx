@@ -7,6 +7,7 @@ import {
   ScrollView,
   TextInput,
   TouchableOpacity,
+  Keyboard,
 } from 'react-native'
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
@@ -15,16 +16,65 @@ import { COLORS } from "../../constants/colors";
 import { useRouter } from 'expo-router'
 import { useDispatch, useSelector } from 'react-redux';
 import { selectLoading, selectError } from "../../redux/auth/authSelectors";
-
+import Toast from 'react-native-toast-message';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { STORAGE_KEYS } from '../../common/commons';
+import { setError, setUser } from '../../redux/auth/authSlice';
+import { verifyOTP } from "../../redux/auth/authThunks";
 
 const VerifyEmail = () => {
   const router = useRouter()
   const [code, setCode] = useState("")
   const loading = useSelector(selectLoading);
   const error = useSelector(selectError);
+  const dispatch = useDispatch();
 
-  const handleVerification = () => {
-    router.push("/(tabs)/");
+
+  const handleVerification = async () => {
+    try {
+      if (!code) {
+        Toast.show({
+          type: "error",
+          text1: "Verification failed",
+          text2: "Please enter a code",
+          visibilityTime: 10000,
+          position: "bottom",
+        });
+        return;
+      }
+
+      Keyboard.dismiss();
+      // Unwrap the promise to get the result, 
+      // always need to check your thunk to return the needed values, so that unwrap() gets a defined result
+      await dispatch(verifyOTP(code)).unwrap(); 
+      router.push("/(tabs)/");
+
+    } catch (error) {
+      // console.log('Caught error:', error?.message || error);
+      // console.log('Error type:', typeof error);
+      // console.log('Error message:', error)
+      // console.log(`isTrue: ${error === "Invalid OTP"}`);
+
+      let text2 = '';
+      if (typeof error === 'string') {
+        text2 = error;
+      } else if (error?.message === "Invalid OTP") {
+        text2 = "Invalid OTP";
+      } else if (error?.message === "OTP expired" || error === "OTP expired") {
+        text2 = "OTP expired";
+      }  else {
+        text2 = error?.message || "An unknown error occurred";
+      }
+
+      Toast.show({
+        type: "error",
+        text1: "Verification failed",
+        text2: text2,
+        visibilityTime: 10000,
+        position: "bottom",
+      });
+      setError(null);
+    }
   }
 
   return (
