@@ -27,14 +27,48 @@ const SignIn = () => {
   const loading = useSelector(selectLoading);
   const error = useSelector(selectError);
   const router = useRouter();
-  // const { username } = useSelector(state => state.auth.user);
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
   const handleSignIn = async () => {
     try {
+      if (!email || !password) {
+        Toast.show({
+          type: "error",
+          text1: "Sign-in failed",
+          text2: "Please fill in all fields",
+          visibilityTime: 10000,
+          position: "bottom",
+        });
+        return;
+      }
+
+      if (!emailRegex.test(email)) {
+        Toast.show({
+          type: "error",
+          text1: "Sign-in failed",
+          text2: "Invalid email",
+          visibilityTime: 10000,
+          position: "bottom",
+        });
+        return;
+      }
+
+      if (password.length < 6) {
+        Toast.show({
+          type: "error",
+          text1: "Sign-up failed",
+          text2: "Password must be at least 6 characters",
+          visibilityTime: 10000,
+          position: "bottom",
+        });
+        return;
+      }
+
       await dispatch(signIn({ email, password })).unwrap();
       router.push('/(tabs)/');
+
     } catch (error) {
-      console.log(`Sign-in failed:`, error?.message || error);
+      // console.log(`Sign-in failed:`, error?.message || error);
       setError(null);
       Toast.show({
         type: "error",
