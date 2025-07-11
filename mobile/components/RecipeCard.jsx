@@ -4,9 +4,13 @@ import { Image } from 'react-native'
 import { useRouter } from 'expo-router'
 import { COLORS } from '../constants/colors'
 import { recipeCardStyles } from '../assets/styles/home.styles'
+import { useSelector, useDispatch } from 'react-redux'
+import { selectUser } from '../redux/auth/authSelectors'
+
 
 const RecipeCard = ({ recipe }) => {
     const router = useRouter()
+    const user = useSelector(selectUser)
 
     return (
         <TouchableOpacity
