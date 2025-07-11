@@ -102,6 +102,11 @@ export const authStyles = StyleSheet.create({
         color: COLORS.primary,
         fontWeight: "600",
     },
+    username: {
+        fontSize: 16,
+        color: COLORS.primary,
+        fontWeight: "600",
+    },
     errorText: {
         display: "flex",
         fontSize: 16,

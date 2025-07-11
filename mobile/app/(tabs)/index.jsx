@@ -1,4 +1,4 @@
-import React, { useState, useEffect, use } from 'react'
+import { useState, useEffect, } from 'react'
 import {
     View,
     Text,
@@ -8,20 +8,16 @@ import {
     ScrollView,
     FlatList,
 } from 'react-native'
-import { useRouter } from 'expo-router'
-import { useDispatch, useSelector } from 'react-redux'
-import { authStyles } from '../../assets/styles/auth.styles'
-import { useAuthRedirect } from '../../hooks/useAuthRedirect';
-import { logout } from '../../redux/auth/authThunks';
 import { MealAPI } from '../../services/mealAPI';
 import { homeStyles } from '../../assets/styles/home.styles';
 import { COLORS } from '../../constants/colors';
 import { Ionicons } from '@expo/vector-icons';
-import RecipeCard  from '../../components/RecipeCard';
+import RecipeCard from '../../components/RecipeCard';
+import CategoryFilter from '../../components/CategoryFilter'
+import LoadingSpinner from '../../components/LoadingSpinner'
+import UserInfoNavbar from '../../components/UserInfoNavbar'
 
 const index = () => {
-    const router = useRouter()
-    const dispatch = useDispatch()
     const [selectedCategory, setSelectedCategory] = useState(null)
     const [recipes, setRecipes] = useState([])
     const [categories, setCategories] = useState([])
@@ -70,14 +66,32 @@ const index = () => {
         setRefreshing(false)
     }
 
+    const loadCategoryData = async (category) => {
+        try {
+            const meals = await MealAPI.filterByCategory(category)
+            const transformedMeals = meals
+                .map((meal) => MealAPI.transformMealData(meal))
+                .filter((meal) => meal !== null)
+            setRecipes(transformedMeals)
+        } catch (error) {
+            console.log(`Error loading category data: ${error.message}`)
+            setRecipes([])
+        }
+    }
+
+    const handleCategorySelect = async (category) => {
+        setSelectedCategory(category)
+        await loadCategoryData(category)
+    }
+
     useEffect(() => {
         loadData()
     }, [])
-    console.log(`recipes`, recipes)
+    // console.log(`featureRecipe`, featureRecipe)
 
-    const handleLogout = () => {
-        dispatch(logout())
-    }
+   
+    // Loading and not Refreshing
+    if (loading && !refreshing) return <LoadingSpinner message='Loading delicious recipes...' />
 
     return (
         <View style={homeStyles.container}>
@@ -92,41 +106,63 @@ const index = () => {
                 }
                 contentContainerStyle={homeStyles.scrollContent}
             >
-                {/* ANIMAL ICONS */}
-                <View style={homeStyles.welcomeSection}>
-                    <Image
-                        source={require("../../assets/images/lamb.png")}
-                        style={{
-                            width: 100,
-                            height: 100,
-                        }}
-                    />
-                    <Image
-                        source={require("../../assets/images/chicken.png")}
-                        style={{
-                            width: 100,
-                            height: 100,
-                        }}
-                    />
-                    <Image
-                        source={require("../../assets/images/pork.png")}
-                        style={{
-                            width: 100,
-                            height: 100,
+                {/* USERNAME AND LOGOUT BUTTON */}
+                <UserInfoNavbar />
 
-                        }}
-                    />
-                    <View style={{ marginTop: 100 }}>
-
+                {/* FEATURED RECIPE */}
+                {featureRecipe && (
+                    <View style={homeStyles.featuredSection}>
                         <TouchableOpacity
-                            onPress={handleLogout}
+                            style={homeStyles.featuredCard}
+                            activeOpacity={0.9}
+
                         >
-                            <Text style={authStyles.linkText}>
-                                <Text style={authStyles.link}>Logout</Text>
-                            </Text>
+                            <View style={homeStyles.featuredImageContainer}>
+                                <Image
+                                    source={{ uri: featureRecipe.image }}
+                                    style={homeStyles.featuredImage}
+                                    contentFit="cover"
+                                    transition={500}
+                                />
+                                <View style={homeStyles.featuredOverlay}>
+                                    <View style={homeStyles.featuredBadge}>
+                                        <Text style={homeStyles.featuredBadgeText}>Featured</Text>
+                                    </View>
+
+                                    <View style={homeStyles.featuredContent}>
+                                        <Text style={homeStyles.featuredTitle} numberOfLines={2}>
+                                            {featureRecipe.name}
+                                        </Text>
+
+                                        <View style={homeStyles.featuredMeta}>
+                                            <View style={homeStyles.metaItem}>
+                                                <Ionicons name="time-outline" size={16} color={COLORS.white} />
+                                                <Text style={homeStyles.metaText}>{featureRecipe.cookTime}</Text>
+                                            </View>
+                                            <View style={homeStyles.metaItem}>
+                                                <Ionicons name="people-outline" size={16} color={COLORS.white} />
+                                                <Text style={homeStyles.metaText}>{featureRecipe.servings}</Text>
+                                            </View>
+                                            <View style={homeStyles.metaItem}>
+                                                <Ionicons name="location-outline" size={16} color={COLORS.white} />
+                                                <Text style={homeStyles.metaText}>{featureRecipe.area}</Text>
+                                            </View>
+                                        </View>
+                                    </View>
+                                </View>
+                            </View>
                         </TouchableOpacity>
                     </View>
-                </View>
+                )}
+
+                {/* CATEGORIES */}
+                {categories.length > 0 && (
+                    <CategoryFilter
+                        categories={categories}
+                        selectedCategory={selectedCategory}
+                        onSelectCategory={handleCategorySelect}
+                    />
+                )}
 
                 {/* RECIPES */}
                 <View style={homeStyles.recipesSection}>
