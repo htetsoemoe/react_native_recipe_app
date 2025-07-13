@@ -2,9 +2,13 @@ import { Joi, validate } from "express-validation";
 
 export const createFavoriteValidator = validate({
     body: Joi.object({
-        recipeId: Joi.number().required().messages({
+        userId: Joi.string().regex(/^[0-9a-fA-F]{24}$/).required().messages({
+            "any.required": "company id is required",
+            "string.pattern.base": "company id must be a valid MongoDB ID",
+        }),
+        recipeId: Joi.string().required().messages({
             "any.required": "recipeId is required",
-            "number.recipeId": "recipeId must be a number",
+            "string.recipeId": "recipeId must be a string",
         }),
         title: Joi.string().required().messages({
             "any.required": "title is required",
@@ -18,9 +22,9 @@ export const createFavoriteValidator = validate({
             "any.required": "cookTime is required",
             "string.cookTime": "cookTime must be a string",
         }),
-        servings: Joi.string().required().messages({
+        servings: Joi.number().required().messages({
             "any.required": "servings is required",
-            "string.servings": "servings must be a string",
+            "number.servings": "servings must be a number",
         })
     })
 })

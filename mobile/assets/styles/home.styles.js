@@ -256,3 +256,34 @@ export const recipeCardStyles = StyleSheet.create({
         fontWeight: "500",
     },
 });
+
+export const recipeCardButtonStyles = StyleSheet.create({
+    container: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginTop: 10,
+        paddingHorizontal: 10,
+    },
+    recipeCardButton: {
+        backgroundColor: COLORS.primary,
+        paddingVertical: 8,
+        borderRadius: 6,
+        marginTop: 5,
+        marginBottom: 30,
+        paddingHorizontal: 10,
+    },
+    buttonDisabled: {
+        opacity: 0.7,
+    },
+    linkText: {
+        fontSize: 16,
+        color: COLORS.textLight,
+    },
+    cardTextLink: {
+        fontSize: 12,
+        color: COLORS.primary,
+        fontWeight: "600",
+        color: "white",
+    },
+})

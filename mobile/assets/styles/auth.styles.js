@@ -102,6 +102,20 @@ export const authStyles = StyleSheet.create({
         color: COLORS.primary,
         fontWeight: "600",
     },
+    cardTextLink: {
+        fontSize: 12,
+        color: COLORS.primary,
+        fontWeight: "600",
+        color: "white",
+    },
+    recipeCardButton: {
+        backgroundColor: COLORS.primary,
+        paddingVertical: 8,
+        borderRadius: 6,
+        marginTop: 5,
+        marginBottom: 30,
+        paddingHorizontal: 10,
+    },
     username: {
         fontSize: 16,
         color: COLORS.primary,

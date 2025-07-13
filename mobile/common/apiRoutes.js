@@ -3,4 +3,6 @@ export const apiRoutes = {
     signup: '/auth/signup',
     signin: '/auth/signin',
     verifyOtp: '/auth/verify-otp',
+    addFavorite: '/favorites/',
+    getFavorites: '/favorites/:userId',
 }

@@ -14,6 +14,7 @@ axiosInstance.interceptors.request.use(
     async (config) => {
         try {
             const token = await AsyncStorage.getItem(STORAGE_KEYS.TOKEN);
+            console.log(`token: ${token}`);
             if (token) {
                 config.headers['X-Access-Token'] = token || '';
             }

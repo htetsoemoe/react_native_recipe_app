@@ -22,4 +22,8 @@ export default class FavoritesService {
     async deleteRecipeByRecipeIdUserId(userId, recipeId) {
         return await this.favoritesModel.findOneAndDelete({ userId, recipeId });
     }
+
+    async getFavoriteByUserIdRecipeId(userId, recipeId) {
+        return await this.favoritesModel.findOne({ userId, recipeId });
+    }
 }

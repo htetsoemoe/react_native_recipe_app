@@ -3,9 +3,19 @@ import FavoritesService from "../services/favorites.service.js";
 export const createFavorite = async (req, res) => {
     try {
         const { recipeId, title, image, cookTime, servings } = req.body;
+        // console.log(`recipeId: ${recipeId}, title: ${title}, image: ${image}, cookTime: ${cookTime}, servings: ${servings}`);
         const userId = req.userId;
 
         const favoriteService = new FavoritesService();
+        // Check if the favorite already exists
+        const existingFavorite = await favoriteService.getFavoriteByUserIdRecipeId(userId, recipeId);
+        if (existingFavorite) {
+            return res.status(400).json({
+                message: "Favorite already exists",
+                success: false,
+            });
+        }
+
         const favoriteData = {
             userId,
             recipeId,
