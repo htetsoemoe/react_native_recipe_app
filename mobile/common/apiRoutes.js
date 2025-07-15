@@ -4,5 +4,5 @@ export const apiRoutes = {
     signin: '/auth/signin',
     verifyOtp: '/auth/verify-otp',
     addFavorite: '/favorites/',
-    getFavorites: '/favorites/:userId',
+    getFavorites: '/favorites/',
 }

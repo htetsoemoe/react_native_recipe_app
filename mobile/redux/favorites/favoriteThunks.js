@@ -4,6 +4,7 @@ import axiosInstance from "../../common/axiosInstance";
 import { apiRoutes } from '../../common/apiRoutes';
 import { STORAGE_KEYS } from '../../common/commons';
 import { addFavorite, removeFavorite } from "./favoriteSlice";
+import { selectUser } from "../auth/authSelectors";
 
 /**
  * Add Favorite Thunk
@@ -25,6 +26,29 @@ export const addFavoriteThunk = createAsyncThunk(
                 error.response?.data?.message ||
                 error.message ||
                 'Failed to add favorite';
+            return rejectWithValue(message);
+        }
+    }
+)
+
+/**
+ * Get all Favorites Thunk
+ */
+export const getAllFavoritesThunk = createAsyncThunk(
+    'favorites/getAllFavorites',
+    async (userId, { rejectWithValue, dispatch }) => {
+        try {
+            const response = await axiosInstance.get(
+                `${apiRoutes.baseUrl}${apiRoutes.getFavorites}${userId}`
+            );
+            console.log(`response in getAllFavoritesThunk: ${JSON.stringify(response.data.data)}`);
+            dispatch(addFavorite(response.data.data));
+            return response.data.data;
+        } catch (error) {
+            const message =
+                error.response?.data?.message ||
+                error.message ||
+                'Failed to get all favorites';
             return rejectWithValue(message);
         }
     }
