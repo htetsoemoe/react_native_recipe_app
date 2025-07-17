@@ -5,4 +5,5 @@ export const apiRoutes = {
     verifyOtp: '/auth/verify-otp',
     addFavorite: '/favorites/',
     getFavorites: '/favorites/',
+    deleteFavorite: '/favorites/',
 }

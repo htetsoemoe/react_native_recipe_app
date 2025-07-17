@@ -19,7 +19,7 @@ export const addFavoriteThunk = createAsyncThunk(
                 JSON.stringify(recipeData) 
             );
             console.log(`response in addFavoriteThunk: ${JSON.stringify(response.data.data)}`);
-            dispatch(addFavorite(response.data.data));
+            // dispatch(addFavorite(response.data.data)); // show duplicate favorite card
             return response.data.data;
         } catch (error) {
             const message =
@@ -49,6 +49,31 @@ export const getAllFavoritesThunk = createAsyncThunk(
                 error.response?.data?.message ||
                 error.message ||
                 'Failed to get all favorites';
+            return rejectWithValue(message);
+        }
+    }
+)
+
+/**
+ * Delete Favorite Thunk
+ * 
+ * /favorites/user/:userId/recipe/:recipeId
+ */
+export const deleteFavoriteThunk = createAsyncThunk(
+    'favorites/deleteFavorite',
+    async (favoriteData, { rejectWithValue, dispatch }) => {
+        try {
+            const response = await axiosInstance.delete(
+                `${apiRoutes.baseUrl}${apiRoutes.deleteFavorite}user/${favoriteData.userId}/recipe/${favoriteData.recipeId}`
+            );
+            console.log(`response in deleteFavoriteThunk: ${JSON.stringify(response.data.data)}`);
+            dispatch(removeFavorite(response.data.data));
+            return response.data.data;
+        } catch (error) {
+            const message =
+                error.response?.data?.message ||
+                error.message ||
+                'Failed to delete favorite';
             return rejectWithValue(message);
         }
     }

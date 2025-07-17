@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { addFavoriteThunk, getAllFavoritesThunk } from "./favoriteThunks";
+import { addFavoriteThunk, getAllFavoritesThunk, deleteFavoriteThunk } from "./favoriteThunks";
 
 const initialState = {
     favorites: [],
@@ -16,7 +16,7 @@ export const favoriteSlice = createSlice({
         },
         removeFavorite: (state, action) => {
             state.favorites = state.favorites.filter(
-                (favorite) => favorite.id !== action.payload
+                (favorite) => favorite.id !== action.payload.id // <=== change this line
             );
         },
         setError: (state, action) => {
@@ -53,6 +53,23 @@ export const favoriteSlice = createSlice({
                 state.error = null;
             })
             .addCase(getAllFavoritesThunk.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+            })
+
+            // --- Remove Favorite ---
+            .addCase(deleteFavoriteThunk.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(deleteFavoriteThunk.fulfilled, (state, action) => {
+                state.loading = false;
+                state.favorites = state.favorites.filter(
+                    (favorite) => favorite.id !== action.payload.id
+                );
+                state.error = null;
+            })
+            .addCase(deleteFavoriteThunk.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload;
             });
