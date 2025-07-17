@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { View, Text, Image, TouchableOpacity } from 'react-native'
 import { favoriteCardStyles, favoriteCardButtonStyles } from '../assets/styles/favorites.styles'
 import { Ionicons } from '@expo/vector-icons'
@@ -7,11 +8,13 @@ import { deleteFavoriteThunk, getAllFavoritesThunk } from '../redux/favorites/fa
 import { selectUser, selectLoading } from '../redux/auth/authSelectors'
 import { setLoading, setError } from '../redux/favorites/favoriteSlice'
 import Toast from 'react-native-toast-message'
+import ConfirmModal from './ConfirmModal'
 
 const FavoriteCard = ({ favorite }) => {
     const loading = useSelector(selectLoading)
     const user = useSelector(selectUser)
     const dispatch = useDispatch()
+    const [showConfirmModal, setShowConfirmModal] = useState(false)
 
     const handleRemoveFavorite = async () => {
         try {
@@ -40,6 +43,14 @@ const FavoriteCard = ({ favorite }) => {
         }
     }
 
+    const handleRemove = () => {
+        setShowConfirmModal(true)
+    }
+
+    const handleRemoveFavoriteConfirm = () => {
+        handleRemoveFavorite()
+        setShowConfirmModal(false)
+    }
 
     return (
         <View
@@ -83,7 +94,7 @@ const FavoriteCard = ({ favorite }) => {
                 <TouchableOpacity
                     // style={authStyles.linkContainer}
                     style={[favoriteCardButtonStyles.recipeDeleteButton, loading && favoriteCardButtonStyles.buttonDisabled]}
-                    onPress={handleRemoveFavorite}
+                    onPress={handleRemove}
                 >
                     <Text style={favoriteCardButtonStyles.linkText}>
                         <Text style={favoriteCardButtonStyles.cardDeleteTextLink}>Remove</Text>
@@ -98,6 +109,12 @@ const FavoriteCard = ({ favorite }) => {
                     </Text>
                 </TouchableOpacity>
             </View>
+
+            <ConfirmModal
+                visible={showConfirmModal}
+                onConfirm={handleRemoveFavoriteConfirm}
+                onCancel={() => setShowConfirmModal(false)}
+            />
         </View>
     )
 }
