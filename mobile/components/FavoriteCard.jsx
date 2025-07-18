@@ -9,11 +9,14 @@ import { selectUser, selectLoading } from '../redux/auth/authSelectors'
 import { setLoading, setError } from '../redux/favorites/favoriteSlice'
 import Toast from 'react-native-toast-message'
 import ConfirmModal from './ConfirmModal'
+import { useRouter } from 'expo-router'
 
 const FavoriteCard = ({ favorite }) => {
     const loading = useSelector(selectLoading)
     const user = useSelector(selectUser)
     const dispatch = useDispatch()
+    const router = useRouter()
+
     const [showConfirmModal, setShowConfirmModal] = useState(false)
 
     const handleRemoveFavorite = async () => {
@@ -50,6 +53,11 @@ const FavoriteCard = ({ favorite }) => {
     const handleRemoveFavoriteConfirm = () => {
         handleRemoveFavorite()
         setShowConfirmModal(false)
+    }
+
+    // console.log(`favorite recipeId: ${favorite.recipeId}`)
+    const handleDetails = (recipeId) => {
+        router.push(`/recipe/${recipeId}`)
     }
 
     return (
@@ -103,6 +111,7 @@ const FavoriteCard = ({ favorite }) => {
 
                 <TouchableOpacity
                     style={[favoriteCardButtonStyles.recipeCardButton, loading && favoriteCardButtonStyles.buttonDisabled]}
+                    onPress={() => handleDetails(favorite.recipeId)}
                 >
                     <Text style={favoriteCardButtonStyles.linkText}>
                         <Text style={favoriteCardButtonStyles.cardTextLink}>Details</Text>

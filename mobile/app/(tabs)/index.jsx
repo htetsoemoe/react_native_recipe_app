@@ -87,7 +87,7 @@ const index = () => {
     useEffect(() => {
         loadData()
     }, [])
-    // console.log(`featureRecipe`, featureRecipe)
+    // console.log(`recipes`, recipes)
 
    
     // Loading and not Refreshing

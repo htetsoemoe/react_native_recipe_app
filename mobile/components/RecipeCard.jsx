@@ -49,6 +49,11 @@ const RecipeCard = ({ recipe }) => {
         }
     }
 
+    // console.log(`recipeId: ${recipe.id}`)
+    const handleDetails = (recipeId) => {
+        router.push(`/recipe/${recipeId}`)
+    }
+
     return (
         <View
             style={recipeCardStyles.container}
@@ -96,10 +101,10 @@ const RecipeCard = ({ recipe }) => {
                 <TouchableOpacity
                     // style={authStyles.linkContainer}
                     style={[recipeCardButtonStyles.recipeCardButton, loading && recipeCardButtonStyles.buttonDisabled]}
-                    // onPress={() => router.push("/(auth)/SignUp")}
+                    onPress={() => handleDetails(recipe.id)}
                 >
                     <Text style={recipeCardButtonStyles.linkText}>
-                        <Text style={recipeCardButtonStyles.cardTextLink}>Detail</Text>
+                        <Text style={recipeCardButtonStyles.cardTextLink}>Details</Text>
                     </Text>
                 </TouchableOpacity>
 
