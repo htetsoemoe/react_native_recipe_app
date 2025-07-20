@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { apiRoutes } from '../../common/apiRoutes';
 import { STORAGE_KEYS } from '../../common/commons';
 import { setToken, setUser, clearAuth } from './authSlice';
+// import { setToken, setUser, clearAuth } from './authActions';
 
 /**
  * Sign Up Thunk

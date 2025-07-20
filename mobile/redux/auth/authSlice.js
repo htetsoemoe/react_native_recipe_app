@@ -1,5 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { signIn, signUp, logout, verifyOTP } from './authThunks';
+import {
+    setToken as setUserReducer,
+    setToken as setTokenReducer,
+    clearAuth as clearAuthReducer,
+} from './authActions';
 
 const initialState = {
     user: null,
@@ -15,15 +20,18 @@ export const authSlice = createSlice({
         setUser: (state, action) => {
             state.user = action.payload;
         },
+        // setUser: setUserReducer,
         setToken: (state, action) => {
             state.token = action.payload;
         },
+        // setToken: setTokenReducer,
         setError: (state, action) => {
             state.error = action.payload;
         },
         setLoading: (state, action) => {
             state.loading = action.payload;
         },
+        // clearAuth: clearAuthReducer,
         clearAuth: (state) => {
             state.user = null;
             state.token = null;
@@ -45,7 +53,7 @@ export const authSlice = createSlice({
             })
             .addCase(signIn.rejected, (state, action) => {
                 state.loading = false;
-                state.error = action.payload;
+                state.error = action.payload || action.error.message;
             })
 
             // --- Sign Up ---

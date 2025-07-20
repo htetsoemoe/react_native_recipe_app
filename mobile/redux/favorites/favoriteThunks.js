@@ -3,8 +3,10 @@ import axios from "axios";
 import axiosInstance from "../../common/axiosInstance";
 import { apiRoutes } from '../../common/apiRoutes';
 import { STORAGE_KEYS } from '../../common/commons';
-import { addFavorite, removeFavorite } from "./favoriteSlice";
 import { selectUser } from "../auth/authSelectors";
+import { addFavorite, removeFavorite } from "./favoriteSlice";
+// import { addFavorite, removeFavorite } from "./favoriteActions";
+
 
 /**
  * Add Favorite Thunk
