@@ -16,6 +16,7 @@ import RecipeCard from '../../components/RecipeCard';
 import CategoryFilter from '../../components/CategoryFilter'
 import LoadingSpinner from '../../components/LoadingSpinner'
 import UserInfoNavbar from '../../components/UserInfoNavbar'
+import { useRouter } from 'expo-router';
 
 const index = () => {
     const [selectedCategory, setSelectedCategory] = useState(null)
@@ -24,6 +25,7 @@ const index = () => {
     const [featureRecipe, setFeaturedRecipe] = useState(null)
     const [loading, setLoading] = useState(true)
     const [refreshing, setRefreshing] = useState(false)
+    const router = useRouter()
 
     const loadData = async () => {
         try {
@@ -89,6 +91,10 @@ const index = () => {
     }, [])
     // console.log(`recipes`, recipes)
 
+    // Routing to details
+    const handleDetails = (recipeId) => {
+        router.push(`/recipe/${recipeId}`)
+    }
    
     // Loading and not Refreshing
     if (loading && !refreshing) return <LoadingSpinner message='Loading delicious recipes...' />
@@ -115,7 +121,7 @@ const index = () => {
                         <TouchableOpacity
                             style={homeStyles.featuredCard}
                             activeOpacity={0.9}
-
+                            onPress={() => handleDetails(featureRecipe.id)}
                         >
                             <View style={homeStyles.featuredImageContainer}>
                                 <Image
