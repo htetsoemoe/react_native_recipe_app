@@ -10,7 +10,11 @@ import { WebView } from 'react-native-webview';
 import { recipeDetailStyles } from "../../assets/styles/recipeDetails.styles";
 import { MealAPI } from "../../services/mealAPI";
 
-
+import { useSelector, useDispatch } from "react-redux";
+import { selectUser } from "../../redux/auth/authSelectors";
+import { addFavoriteThunk } from "../../redux/favorites/favoriteThunks";
+import { setError } from "../../redux/favorites/favoriteSlice";
+import Toast from "react-native-toast-message";
 
 const Recipe = () => {
     const { id } = useLocalSearchParams();
@@ -18,6 +22,8 @@ const Recipe = () => {
     const router = useRouter();
     const [loading, setLoading] = useState(true);
     const [recipe, setRecipe] = useState(null);
+    const user = useSelector(selectUser)
+    const dispatch = useDispatch()
 
     // load recipe with id
     useEffect(() => {
@@ -50,6 +56,38 @@ const Recipe = () => {
         return `https://www.youtube.com/embed/${videoId}`;
     }
     console.log(`youtubeUrl: ${recipe?.youtubeUrl}`)
+
+    // Add to favorite
+    const handleAddFavorite = async () => {
+        try {
+            const recipeData = {
+                userId: user?._id,
+                recipeId: recipe.id,
+                title: recipe.name,
+                image: recipe.image,
+                cookTime: recipe.cookTime,
+                servings: recipe.servings,
+            }
+            console.log(`recipeData: ${JSON.stringify(recipeData)}`)
+            await dispatch(addFavoriteThunk(recipeData)).unwrap()
+        } catch (error) {
+            setError(error)
+            console.log(`error: ${JSON.stringify(error)}`)
+            let text2 = ''
+            if (typeof error === 'string') {
+                text2 = error
+            } else {
+                text2 = error?.message
+            }
+            Toast.show({
+                type: 'error',
+                text1: 'Error',
+                text2: text2,
+                visibilityTime: 10000,
+                position: 'bottom',
+            })
+        }
+    }
 
     return (
         <View style={recipeDetailStyles.container}>
@@ -245,6 +283,7 @@ const Recipe = () => {
                     {/* Add to Favorites Section */}
                     <TouchableOpacity
                         style={recipeDetailStyles.primaryButton}
+                        onPress={handleAddFavorite}
                     >
                         <LinearGradient
                             colors={[COLORS.primary, COLORS.primary + "CC"]}
